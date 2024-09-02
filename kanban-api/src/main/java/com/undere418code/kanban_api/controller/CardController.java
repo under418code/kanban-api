@@ -2,6 +2,7 @@ package com.undere418code.kanban_api.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.undere418code.kanban_api.dto.CardDTO;
@@ -45,7 +46,8 @@ public class CardController {
 
     /** Supprime une carte. */
     @DeleteMapping("/{id}")
-    public void deleteCard(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
         cardService.deleteCard(id);
+        return ResponseEntity.noContent().build();
     }
 }
