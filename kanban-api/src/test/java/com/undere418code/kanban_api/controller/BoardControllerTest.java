@@ -140,7 +140,7 @@ class BoardControllerTest {
         doNothing().when(boardService).deleteBoard(1L);
 
         mockMvc.perform(delete("/boards/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(boardService).deleteBoard(1L);
     }

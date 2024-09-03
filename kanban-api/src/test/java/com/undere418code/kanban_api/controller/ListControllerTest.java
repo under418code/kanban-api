@@ -146,7 +146,7 @@ class ListControllerTest {
         doNothing().when(listService).deleteList(1L); // la methode mock retourne rien 
 
         mockMvc.perform(delete("/lists/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(listService).deleteList(1L);// Eq pas obligatoire methode simple a une variable
     }
