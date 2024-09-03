@@ -122,6 +122,15 @@
         <artifactId>mapstruct</artifactId>
         <version>${org.mapstruct.version}</version>
     	</dependency>
+
+		<!-- indispensable pour @Test utilisation de Junit6 
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>6.1.3</version>
+			<scope>test</scope>
+		</dependency> -->
 	</dependencies>
 
 		<build>
