@@ -29,6 +29,9 @@ class BoardControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired 
+    private ObjectMapper objectMapper;
+
     @MockitoBean
     private BoardService boardService;
 
@@ -43,9 +46,10 @@ class BoardControllerTest {
 
         mockMvc.perform(get("/boards/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Board A"))
-                .andExpect(jsonPath("$.description").value("Description A"));
+                // .andExpect(jsonPath("$.id").value(1))
+                // .andExpect(jsonPath("$.name").value("Board A"))
+                // .andExpect(jsonPath("$.description").value("Description A"))
+                .andExpect(content().json(objectMapper.writeValueAsString(dto)));
 
         verify(boardService).getBoard(1L);
     }
@@ -65,10 +69,11 @@ class BoardControllerTest {
 
         mockMvc.perform(get("/boards"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Board A"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("Board B"));
+                // .andExpect(jsonPath("$[0].id").value(1))
+                // .andExpect(jsonPath("$[0].name").value("Board A"))
+                // .andExpect(jsonPath("$[1].id").value(2))
+                // .andExpect(jsonPath("$[1].name").value("Board B"))
+                .andExpect(content().json(objectMapper.writeValueAsString(boards)));
 
         verify(boardService).getAllBoards();
     }
@@ -78,8 +83,6 @@ class BoardControllerTest {
     // ---------------------------------------------------------
     @Test
     void createBoard_returnsCreatedBoardDTO() throws Exception {
-
-        ObjectMapper mapper = new ObjectMapper();
         CreateBoardDTO input = new CreateBoardDTO("New Board", "New Desc");
         BoardDTO output = new BoardDTO(10L, "New Board", "New Desc");
 
@@ -87,7 +90,7 @@ class BoardControllerTest {
 
         mockMvc.perform(post("/boards")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(input)))
+                .content(objectMapper.writeValueAsString(input)))
                 // .content("""
                 //         {
                 //           "name": "New Board",
@@ -95,14 +98,16 @@ class BoardControllerTest {
                 //         }
                 //         """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(10))
-                .andExpect(jsonPath("$.name").value("New Board"))
-                .andExpect(jsonPath("$.description").value("New Desc"));
+                // .andExpect(jsonPath("$.id").value(10))
+                // .andExpect(jsonPath("$.name").value("New Board"))
+                // .andExpect(jsonPath("$.description").value("New Desc"))
+                .andExpect(content().json(objectMapper.writeValueAsString(output)));
 
-        verify(boardService).createBoard(argThat(dto ->
-                dto.name().equals("New Board") &&
-                dto.description().equals("New Desc")
-                ));
+        // verify(boardService).createBoard(argThat(dto ->
+        //         dto.name().equals("New Board") &&
+        //         dto.description().equals("New Desc")
+        //         ));
+        verify(boardService).createBoard(eq(input));
     }
 
     // ---------------------------------------------------------
@@ -111,7 +116,6 @@ class BoardControllerTest {
     @Test
     void updateBoard_returnsUpdatedBoardDTO() throws Exception {
 
-        ObjectMapper mapper = new ObjectMapper();
         UpdateBoardDTO input = new UpdateBoardDTO("Updated", "Updated Desc");
         BoardDTO output = new BoardDTO(1L, "Updated", "Updated Desc");
 
@@ -119,16 +123,19 @@ class BoardControllerTest {
 
         mockMvc.perform(patch("/boards/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(input)))
+                .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Updated"))
-                .andExpect(jsonPath("$.description").value("Updated Desc"));
+                // .andExpect(jsonPath("$.id").value(1))
+                // .andExpect(jsonPath("$.name").value("Updated"))
+                // .andExpect(jsonPath("$.description").value("Updated Desc"))
+                .andExpect(content().json(objectMapper.writeValueAsString(output)));
 
-        verify(boardService).updateBoard(eq(1L), argThat(dto ->
-                dto.name().equals("Updated") &&
-                dto.description().equals("Updated Desc")
-                ));
+        // verify(boardService).updateBoard(eq(1L), argThat(dto ->
+        //         dto.name().equals("Updated") &&
+        //         dto.description().equals("Updated Desc")
+        //         ));
+
+        verify(boardService).updateBoard(eq(1L), eq(input));
     }
 
     // ---------------------------------------------------------

@@ -48,6 +48,6 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long id) {
         boardService.deleteBoard(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); // return 204(indique qu'une requête a réussi, mais que le serveur ne renvoie aucun contenu dans le corps de la réponse);
     }
 }
