@@ -39,19 +39,16 @@ public class BoardEntity {
     private String description;
 
     /**
-     * Date de création.
-     * LocalDateTime.now() → valeur par défaut au moment de l'instanciation.
+     * Date de création gerer par la bdd.
      */
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt ;
 
     /**
-     * Date de dernière mise à jour.
-     * LocalDateTime.now() → valeur par défaut.
-     * À mettre à jour dans le service métier.
+     * Date de dernière mise à jour gerer par la bdd.
      */
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt ;
 
     /**
      * Relation OneToMany avec ListEntity.
@@ -62,12 +59,6 @@ public class BoardEntity {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ListEntity> lists = new ArrayList<>();
 
-    /**
-     * Relation OneToMany avec CardEntity.
-     * Même logique que pour les listes.
-     */
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CardEntity> cards = new ArrayList<>();
 
     // ------------------ GETTERS / SETTERS ------------------
 
@@ -119,11 +110,4 @@ public class BoardEntity {
         this.lists = lists;
     }
 
-    public List<CardEntity> getCards() {
-        return this.cards;
-    }
-
-    public void setCards(List<CardEntity> cards) {
-        this.cards = cards;
-    }
 }

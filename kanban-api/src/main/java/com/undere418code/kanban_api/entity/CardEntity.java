@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.undere418code.kanban_api.enums.CardStatus;
+
 /**
  * Représente une carte Kanban.
  * ENTITY JPA → POJO enrichi par des annotations.
@@ -25,17 +27,6 @@ public class CardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    /**
-     * Board auquel appartient la carte.
-     * 
-     * @ManyToOne → plusieurs cartes peuvent appartenir à un board.
-     *            optional = false → obligatoire
-     * @JoinColumn → clé étrangère board_id
-     */
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "board_id", nullable = false)
-    private BoardEntity board;
 
     /**
      * Liste Kanban dans laquelle se trouve la carte.
@@ -73,11 +64,17 @@ public class CardEntity {
 
     /**
      * Statut de la carte.
-     * Exemple : ACTIVE, ARCHIVED, DELETED.
+     * Ce champ utilise l'ENUM CardStatus, qui définit les différents états possibles
+     * d'une carte dans le système (ACTIVE, ARCHIVED, DELETED).
      * Valeur par défaut : ACTIVE.
+     * @Enumerated
+     * → Indique à JPA de stocker l'ENUM sous forme de texte dans la base de données.
+     *   Cela garantit une correspondance directe avec le type PostgreSQL "card_status"
+     *   et évite les problèmes liés aux valeurs ordinales.
      */
-    @Column(nullable = false, length = 50)
-    private String status = "ACTIVE";
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CardStatus status = CardStatus.ACTIVE;
 
     /**
      * Date limite (deadline) de la carte.
@@ -86,18 +83,16 @@ public class CardEntity {
     private LocalDate dueDate;
 
     /**
-     * Date de création.
-     * LocalDateTime.now() → valeur par défaut.
+     * Date de création gerer par la bdd.
      */
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt ;
 
     /**
-     * Date de dernière mise à jour.
-     * À mettre à jour dans le service métier.
+     * Date de dernière mise à jour gerer par la bdd.
      */
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt ;
 
     // ------------------ GETTERS / SETTERS ------------------
 
@@ -107,14 +102,6 @@ public class CardEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public BoardEntity getBoard() {
-        return this.board;
-    }
-
-    public void setBoard(BoardEntity board) {
-        this.board = board;
     }
 
     public ListEntity getList() {
@@ -149,11 +136,11 @@ public class CardEntity {
         this.position = position;
     }
 
-    public String getStatus() {
+    public CardStatus getStatus() {
         return this.status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(CardStatus status) {
         this.status = status;
     }
 

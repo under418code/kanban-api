@@ -55,18 +55,16 @@ public class ListEntity {
     private Integer position;
 
     /**
-     * Date de création.
-     * LocalDateTime.now() → valeur par défaut.
+     * Date de création gerer par la bdd.
      */
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt ;
 
     /**
-     * Date de dernière mise à jour.
-     * À mettre à jour dans le service métier.
+     * Date de dernière mise à jour gerer par la bdd.
      */
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt ;
 
     /**
      * Relation OneToMany avec CardEntity.

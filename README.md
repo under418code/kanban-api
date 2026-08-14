@@ -628,6 +628,64 @@ src/main/java/com/undere418code/kanban_api
 ```
 
 ---
+## 🟪 Repositories
+
+Les repositories sont des **interfaces Spring Data JPA** qui servent d’**adaptateurs de persistance**. Ils définissent le **contrat technique** permettant d’accéder aux entités en base, tandis que Spring génère automatiquement l’implémentation.
+
+### Rôle
+
+- Accès aux données via JPA/Hibernate
+- CRUD complet fourni automatiquement
+- Méthodes dérivées basées sur le nom des fonctions
+- Pont entre la couche service et la base SQL
+- Aucun code métier : uniquement un contrat technique
+
+### Fichiers
+
+- **BoardRepository** — gestion des boards
+- **ListRepository** — gestion des listes + `findByBoardId`
+- **CardRepository** — gestion des cartes + `findByListId`
+
+### Pourquoi sont-ils « vides » ?
+
+Parce que `JpaRepository` fournit déjà de nombreuses opérations courantes :
+
+- `save()`
+- `findAll()`
+- `findById()`
+- `deleteById()`
+- Pagination
+- Tri
+
+Les repositories restent donc **minimalistes**, ce qui permet de conserver une architecture propre, lisible et facilement évolutive.
+
+---
+
+## 🟪 Services
+
+Les services contiennent la **logique métier** du projet. Ils utilisent les repositories comme **adaptateurs de persistance** et exposent des méthodes claires destinées aux controllers.
+
+### Rôle
+
+- Centraliser la logique métier
+- Garder les controllers légers
+- Appliquer les règles métier : validation, cohérence, transitions, etc.
+- Préparer la future couche DTO
+- Découpler le domaine de la persistance
+
+### Fichiers
+
+- **BoardService** — création et récupération des boards
+- **ListService** — gestion des listes d’un board
+- **CardService** — gestion des cartes d’une liste
+
+### Principes appliqués
+
+- Injection par constructeur, conformément aux bonnes pratiques Spring
+- Aucune logique métier dans les repositories
+- Services simples mais conçus pour évoluer
+- Séparation claire des responsabilités
+- Structure prête à accueillir les futurs contrôleurs REST
 
 # 🛣️ Roadmap
 
@@ -648,53 +706,22 @@ src/main/java/com/undere418code/kanban_api
   * [x] `ListEntity`
   * [x] `CardEntity`
 
----
+* [x] Création des repositories :
 
-## 🔜 Étape 2 - Repository
+  * [x] `BoardRepository`
+  * [x] `ListRepository`
+  * [x] `CardRepository`
 
-Prochaine étape : mettre en place les repositories Spring Data JPA.
+* [x] Création des services :
 
-```text
-repository
-│
-├── BoardRepository
-├── ListRepository
-└── CardRepository
-```
+  * [x] `BoardService`
+  * [x] `ListService`
+  * [x] `CardService`
 
-Objectif :
-
-```text
-BoardEntity
-     ↓
-BoardRepository
-     ↓
-PostgreSQL
-```
-
-Même principe pour `ListEntity` et `CardEntity`.
-
-Cette étape permettra de commencer à interagir réellement avec la base de données depuis l'application Spring Boot.
 
 ---
 
-## 🔜 Étape 3 - Service
-
-Mise en place de la logique métier :
-
-```text
-Controller
-     ↓
-Service
-     ↓
-Repository
-```
-
-Les services seront notamment responsables de la gestion des règles métier liées aux boards, listes et cartes.
-
----
-
-## 🔜 Étape 4 - Controller
+## 🔜 Étape 1 - Controller
 
 Création des endpoints REST :
 
@@ -706,7 +733,7 @@ Création des endpoints REST :
 
 ---
 
-## 🔜 Étape 5 - DTO & Validation
+## 🔜 Étape 2 - DTO & Validation
 
 Ajout des :
 
@@ -718,7 +745,7 @@ Ajout des :
 
 ---
 
-## 🔜 Étape 6 - CRUD
+## 🔜 Étape 3 - CRUD
 
 Implémentation complète :
 
@@ -731,7 +758,7 @@ DELETE
 
 ---
 
-## 🔜 Étape 7 - Fonctionnalités avancées
+## 🔜 Étape 4 - Fonctionnalités avancées
 
 * Pagination
 * Tri
@@ -743,7 +770,7 @@ DELETE
 
 ---
 
-## 🔜 Étape 8 - Sécurité
+## 🔜 Étape 5 - Sécurité
 
 Ajout progressif :
 
