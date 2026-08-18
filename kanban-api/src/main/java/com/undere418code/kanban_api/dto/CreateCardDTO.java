@@ -1,7 +1,13 @@
 package com.undere418code.kanban_api.dto;
 
+import java.time.LocalDate;
+
+import com.undere418code.kanban_api.enums.CardStatus;
+
 public record CreateCardDTO(
         String title,
         String description,
-        Long listId
+        Long listId,
+        CardStatus status,
+        LocalDate dueDate
 ) {}
