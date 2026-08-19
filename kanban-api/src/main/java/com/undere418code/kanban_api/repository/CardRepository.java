@@ -20,4 +20,7 @@ public interface CardRepository extends JpaRepository<CardEntity, Long> {
 
     // Récupère toutes les cartes appartenant à une liste donnée
     List<CardEntity> findByListId(Long listId);
+
+        // Calcul de la prochaine position 
+    int countByListId(Long listId);
 }

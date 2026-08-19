@@ -27,21 +27,26 @@ public class ListService {
         this.listMapper = listMapper;
     }
 
+    private int nextPosition(Long boardId) {
+        return listRepository.countByBoardId(boardId);
+    }
+
     public ListDTO createList(CreateListDTO dto) {
 
         BoardEntity board = boardRepository.findById(dto.boardId())
-                .orElseThrow(() -> new NotFoundException("Board " + dto.boardId() + " not found"));
+                .orElseThrow(() -> new NotFoundException("Board " + dto.boardId() + " not found for creating"));
 
         ListEntity list = new ListEntity();
         list.setName(dto.name());
         list.setBoard(board);
+        list.setPosition(nextPosition(dto.boardId()));
 
         return listMapper.toDTO(listRepository.save(list));
     }
 
     public ListDTO getList(Long id) {
         ListEntity list = listRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("List " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("List " + id + " not found for getting"));
         return listMapper.toDTO(list);
     }
 
@@ -54,17 +59,62 @@ public class ListService {
 
     public ListDTO updateList(Long id, UpdateListDTO dto) {
         ListEntity list = listRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("List " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("List " + id + " not found for update"));
 
-        if (dto.name() != null) list.setName(dto.name());
+        if (dto.name() != null)
+            list.setName(dto.name());
+               // Repositionnement
+        if (dto.position() != null) {
+            int oldPos = list.getPosition();
+            int newPos = dto.position();
+
+            if (oldPos != newPos) {
+                Long boardId = list.getBoard().getId();
+                List<ListEntity> lists = listRepository.findByBoardId(boardId);
+
+                lists.removeIf(c -> c.getId().equals(list.getId()));
+                int index = Math.max(0, Math.min(newPos, lists.size()));
+                lists.add(index, list);
+
+                // Passe 1 : positions temporaires hors plage (négatives), aucune collision
+                // possible
+                int tempPos = -1;
+                for (ListEntity c : lists) {
+                    c.setPosition(tempPos--);
+                }
+                listRepository.saveAll(lists);
+                listRepository.flush(); // force le flush avant la 2e passe
+
+                // Passe 2 : positions finales
+                int pos = 0;
+                for (ListEntity c : lists) {
+                    c.setPosition(pos++);
+                }
+                listRepository.saveAll(lists);
+            }
+        }
 
         return listMapper.toDTO(listRepository.save(list));
     }
 
     public void deleteList(Long id) {
-        if (!listRepository.existsById(id)) {
-            throw new NotFoundException("List " + id + " not found");
-        }
-        listRepository.deleteById(id);
+        ListEntity list = listRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("List " + id + " not found for delete"));
+
+        Long boardId = list.getBoard().getId();
+        int deletedPos = list.getPosition();
+
+        // Supression de la list
+        listRepository.delete(list);
+
+        // Récupère les listes restantes
+        List<ListEntity> lists = listRepository.findByBoardId(boardId);
+
+        // Recalcule les positions
+        lists.stream()
+                .filter(c -> c.getPosition() > deletedPos)
+                .forEach(c -> c.setPosition(c.getPosition() - 1));
+        
+        listRepository.saveAll(lists);
     }
 }
