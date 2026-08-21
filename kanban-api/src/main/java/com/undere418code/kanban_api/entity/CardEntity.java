@@ -60,7 +60,7 @@ public class CardEntity {
      * Contrainte d'unicité avec list_id.
      */
     @Column(nullable = false)
-    private Integer position;
+    private Integer position = 0;
 
     /**
      * Statut de la carte.
@@ -85,13 +85,13 @@ public class CardEntity {
     /**
      * Date de création gerer par la bdd.
      */
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt ;
 
     /**
      * Date de dernière mise à jour gerer par la bdd.
      */
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt ;
 
     // ------------------ GETTERS / SETTERS ------------------

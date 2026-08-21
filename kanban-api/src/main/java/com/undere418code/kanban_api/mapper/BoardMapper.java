@@ -9,4 +9,5 @@ import com.undere418code.kanban_api.entity.BoardEntity;
 public interface BoardMapper {
 
     BoardDTO toDTO(BoardEntity entity);
+
 }

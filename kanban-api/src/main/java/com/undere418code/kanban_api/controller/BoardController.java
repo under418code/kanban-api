@@ -1,0 +1,51 @@
+package com.undere418code.kanban_api.controller;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.undere418code.kanban_api.dto.BoardDTO;
+import com.undere418code.kanban_api.dto.CreateBoardDTO;
+import com.undere418code.kanban_api.dto.UpdateBoardDTO;
+import com.undere418code.kanban_api.service.BoardService;
+
+@RestController
+@RequestMapping("/boards")
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    /** Crée un nouveau board. */
+    @PostMapping
+    public BoardDTO createBoard(@RequestBody CreateBoardDTO dto) {
+        return boardService.createBoard(dto);
+    }
+
+    /** Récupère un board par ID. */
+    @GetMapping("/{id}")
+    public BoardDTO getBoard(@PathVariable Long id) {
+        return boardService.getBoard(id);
+    }
+
+    /** Retourne tous les boards. */
+    @GetMapping
+    public List<BoardDTO> getAllBoards() {
+        return boardService.getAllBoards();
+    }
+
+    /** Met à jour un board (PATCH). */
+    @PatchMapping("/{id}")
+    public BoardDTO updateBoard(@PathVariable Long id, @RequestBody UpdateBoardDTO dto) {
+        return boardService.updateBoard(id, dto);
+    }
+
+    /** Supprime un board. (DELETE)*/
+    @DeleteMapping("/{id}")
+    public void deleteBoard(@PathVariable Long id) {
+        boardService.deleteBoard(id);
+    }
+}

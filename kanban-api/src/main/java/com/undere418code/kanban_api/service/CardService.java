@@ -27,6 +27,10 @@ public class CardService {
         this.cardMapper = cardMapper;
     }
 
+    private int nextPosition(Long listId) {
+        return cardRepository.countByListId(listId);
+    }
+
     public CardDTO createCard(CreateCardDTO dto) {
 
         ListEntity list = listRepository.findById(dto.listId())
@@ -36,6 +40,9 @@ public class CardService {
         card.setTitle(dto.title());
         card.setDescription(dto.description());
         card.setList(list);
+        card.setStatus(dto.status());
+        card.setDueDate(dto.dueDate());
+        card.setPosition(nextPosition(dto.listId()));
 
         return cardMapper.toDTO(cardRepository.save(card));
     }
@@ -57,17 +64,67 @@ public class CardService {
         CardEntity card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card " + id + " not found"));
 
-        if (dto.title() != null) card.setTitle(dto.title());
-        if (dto.description() != null) card.setDescription(dto.description());
-        if (dto.status() != null) card.setStatus(dto.status());
+        if (dto.title() != null)
+            card.setTitle(dto.title());
+        if (dto.description() != null)
+            card.setDescription(dto.description());
+        if (dto.status() != null)
+            card.setStatus(dto.status());
+        if (dto.dueDate() != null)
+            card.setDueDate(dto.dueDate());
+        // Repositionnement
+        if (dto.position() != null) {
+            int oldPos = card.getPosition();
+            int newPos = dto.position();
+
+            if (oldPos != newPos) {
+                Long listId = card.getList().getId();
+                List<CardEntity> cards = cardRepository.findByListId(listId);
+
+                cards.removeIf(c -> c.getId().equals(card.getId()));
+                int index = Math.max(0, Math.min(newPos, cards.size()));
+                cards.add(index, card);
+
+                // Passe 1 : positions temporaires hors plage (négatives), aucune collision
+                // possible
+                int tempPos = -1;
+                for (CardEntity c : cards) {
+                    c.setPosition(tempPos--);
+                }
+                cardRepository.saveAll(cards);
+                cardRepository.flush(); // force le flush avant la 2e passe
+
+                // Passe 2 : positions finales
+                int pos = 0;
+                for (CardEntity c : cards) {
+                    c.setPosition(pos++);
+                }
+                cardRepository.saveAll(cards);
+            }
+        }
 
         return cardMapper.toDTO(cardRepository.save(card));
     }
 
     public void deleteCard(Long id) {
-        if (!cardRepository.existsById(id)) {
-            throw new NotFoundException("Card " + id + " not found");
-        }
-        cardRepository.deleteById(id);
+        CardEntity card = cardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Card " + id + " not found"));
+
+        Long listId = card.getList().getId();
+        int deletedPos = card.getPosition();
+
+        // Supprime la carte
+        cardRepository.delete(card);
+
+        // Récupère les cartes restantes
+        List<CardEntity> cards = cardRepository.findByListId(listId);
+
+        // Recalcule les positions
+        cards.stream()
+                .filter(c -> c.getPosition() > deletedPos)
+                .forEach(c -> c.setPosition(c.getPosition() - 1));
+
+        cardRepository.saveAll(cards);
     }
+
 }

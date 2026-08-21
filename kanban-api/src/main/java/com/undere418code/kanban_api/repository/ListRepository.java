@@ -22,4 +22,7 @@ public interface ListRepository extends JpaRepository<ListEntity, Long>{
 
     // Récupère toutes les listes appartenant à un board donné
     List<ListEntity> findByBoardId(Long boardId);
+    
+    // Calcul de la prochaine position 
+    int countByBoardId(Long boardId);
 }
