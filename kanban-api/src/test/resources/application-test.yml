@@ -7,14 +7,10 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
         show_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+        # dialect: retire cette ligne, laisse Hibernate auto-détecter H2
+        hbm2ddl.create_namespaces: true
