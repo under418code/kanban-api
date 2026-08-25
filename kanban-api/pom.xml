@@ -34,6 +34,7 @@
 	</properties>
 	    <dependencyManagement>
         <dependencies>
+		<!-- Nécessaire pour les conteineurs -->
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
@@ -88,6 +89,8 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Nécessaire pour conteneuriser -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
