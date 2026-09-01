@@ -1,6 +1,7 @@
 package com.undere418code.kanban_api.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -12,6 +13,8 @@ import com.undere418code.kanban_api.dto.BoardDTO;
 import com.undere418code.kanban_api.dto.CreateBoardDTO;
 import com.undere418code.kanban_api.dto.UpdateBoardDTO;
 import com.undere418code.kanban_api.service.BoardService;
+
+import tools.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +79,7 @@ class BoardControllerTest {
     @Test
     void createBoard_returnsCreatedBoardDTO() throws Exception {
 
+        ObjectMapper mapper = new ObjectMapper();
         CreateBoardDTO input = new CreateBoardDTO("New Board", "New Desc");
         BoardDTO output = new BoardDTO(10L, "New Board", "New Desc");
 
@@ -83,18 +87,22 @@ class BoardControllerTest {
 
         mockMvc.perform(post("/boards")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "name": "New Board",
-                          "description": "New Desc"
-                        }
-                        """))
+                .content(mapper.writeValueAsString(input)))
+                // .content("""
+                //         {
+                //           "name": "New Board",
+                //           "description": "New Desc"
+                //         }
+                //         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.name").value("New Board"))
                 .andExpect(jsonPath("$.description").value("New Desc"));
 
-        verify(boardService).createBoard(any(CreateBoardDTO.class));
+        verify(boardService).createBoard(argThat(dto ->
+                dto.name().equals("New Board") &&
+                dto.description().equals("New Desc")
+                ));
     }
 
     // ---------------------------------------------------------
@@ -103,6 +111,7 @@ class BoardControllerTest {
     @Test
     void updateBoard_returnsUpdatedBoardDTO() throws Exception {
 
+        ObjectMapper mapper = new ObjectMapper();
         UpdateBoardDTO input = new UpdateBoardDTO("Updated", "Updated Desc");
         BoardDTO output = new BoardDTO(1L, "Updated", "Updated Desc");
 
@@ -110,18 +119,16 @@ class BoardControllerTest {
 
         mockMvc.perform(patch("/boards/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "name": "Updated",
-                          "description": "Updated Desc"
-                        }
-                        """))
+                .content(mapper.writeValueAsString(input)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Updated"))
                 .andExpect(jsonPath("$.description").value("Updated Desc"));
 
-        verify(boardService).updateBoard(eq(1L), any(UpdateBoardDTO.class));
+        verify(boardService).updateBoard(eq(1L), argThat(dto ->
+                dto.name().equals("Updated") &&
+                dto.description().equals("Updated Desc")
+                ));
     }
 
     // ---------------------------------------------------------

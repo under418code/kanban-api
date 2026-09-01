@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.undere418code.kanban_api.dto.CreateListDTO;
 import com.undere418code.kanban_api.dto.ListDTO;
@@ -27,6 +29,9 @@ class ListControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
     
     //remplace le service par un mock(fake)
     @MockitoBean
@@ -51,6 +56,28 @@ class ListControllerTest {
         
         //verifie que le controller a bien appeler le listService.getList(1L) au moins une fois
         verify(listService).getList(1L);
+    }
+
+    // ---------------------------------------------------------
+    // GET /lists/board/{boardId}
+    // ---------------------------------------------------------
+    @Test
+    void getAllListOfOneBoardId_returnListOfListDTO() throws Exception{
+
+        List<ListDTO> lists = List.of(
+                new ListDTO(19L, 0, "Organisation", 15L),
+                new ListDTO(20L, 1, "Researching", 15L)
+        );
+
+        when(listService.getListsByBoard(15L)).thenReturn(lists);
+
+        String expectedJson = objectMapper.writeValueAsString(lists);
+
+        mockMvc.perform(get("/lists/board/15"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedJson));
+        
+        verify(listService).getListsByBoard(15L);
     }
 
     // ---------------------------------------------------------
