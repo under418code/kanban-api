@@ -34,6 +34,7 @@
 	</properties>
 	    <dependencyManagement>
         <dependencies>
+		<!-- Nécessaire pour les conteineurs -->
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
@@ -89,6 +90,8 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Nécessaire pour conteneuriser -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-testcontainers</artifactId>
@@ -119,6 +122,15 @@
         <artifactId>mapstruct</artifactId>
         <version>${org.mapstruct.version}</version>
     	</dependency>
+
+		<!-- indispensable pour @Test utilisation de Junit6 
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>6.1.3</version>
+			<scope>test</scope>
+		</dependency> -->
 	</dependencies>
 
 		<build>

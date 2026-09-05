@@ -2,6 +2,7 @@ package com.undere418code.kanban_api.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.undere418code.kanban_api.dto.ListDTO;
@@ -45,7 +46,8 @@ public class ListController {
 
     /** Supprime une liste. */
     @DeleteMapping("/{id}")
-    public void deleteList(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteList(@PathVariable Long id) {
         listService.deleteList(id);
+        return ResponseEntity.noContent().build();
     }
 }

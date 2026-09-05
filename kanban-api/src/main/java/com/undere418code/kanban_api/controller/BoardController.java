@@ -2,6 +2,7 @@ package com.undere418code.kanban_api.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.undere418code.kanban_api.dto.BoardDTO;
@@ -45,7 +46,8 @@ public class BoardController {
 
     /** Supprime un board. (DELETE)*/
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBoard(@PathVariable Long id) {
         boardService.deleteBoard(id);
+        return ResponseEntity.noContent().build(); // return 204(indique qu'une requête a réussi, mais que le serveur ne renvoie aucun contenu dans le corps de la réponse);
     }
 }
