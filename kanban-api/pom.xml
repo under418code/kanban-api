@@ -123,6 +123,15 @@
         <version>${org.mapstruct.version}</version>
     	</dependency>
 
+		<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
+		indispensable pour @Valid pour spring boot -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>4.2.0-M1</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- indispensable pour @Test utilisation de Junit6 
 
 		<dependency>

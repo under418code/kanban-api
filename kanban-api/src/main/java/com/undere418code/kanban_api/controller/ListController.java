@@ -10,6 +10,8 @@ import com.undere418code.kanban_api.dto.CreateListDTO;
 import com.undere418code.kanban_api.dto.UpdateListDTO;
 import com.undere418code.kanban_api.service.ListService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/lists")
 public class ListController {
@@ -22,7 +24,7 @@ public class ListController {
 
     /** Crée une nouvelle liste dans un board. */
     @PostMapping
-    public ListDTO createList(@RequestBody CreateListDTO dto) {
+    public ListDTO createList(@Valid @RequestBody CreateListDTO dto) {
         return listService.createList(dto);
     }
 

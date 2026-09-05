@@ -10,6 +10,8 @@ import com.undere418code.kanban_api.dto.CreateCardDTO;
 import com.undere418code.kanban_api.dto.UpdateCardDTO;
 import com.undere418code.kanban_api.service.CardService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/cards")
 public class CardController {
@@ -22,7 +24,7 @@ public class CardController {
 
     /** Crée une carte dans une liste. */
     @PostMapping
-    public CardDTO createCard(@RequestBody CreateCardDTO dto) {
+    public CardDTO createCard(@Valid @RequestBody CreateCardDTO dto) {
         return cardService.createCard(dto);
     }
 

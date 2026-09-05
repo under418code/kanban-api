@@ -10,6 +10,8 @@ import com.undere418code.kanban_api.dto.CreateBoardDTO;
 import com.undere418code.kanban_api.dto.UpdateBoardDTO;
 import com.undere418code.kanban_api.service.BoardService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/boards")
 public class BoardController {
@@ -22,7 +24,7 @@ public class BoardController {
 
     /** Crée un nouveau board. */
     @PostMapping
-    public BoardDTO createBoard(@RequestBody CreateBoardDTO dto) {
+    public BoardDTO createBoard(@Valid @RequestBody CreateBoardDTO dto) {
         return boardService.createBoard(dto);
     }
 
