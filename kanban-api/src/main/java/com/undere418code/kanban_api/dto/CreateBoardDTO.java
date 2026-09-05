@@ -1,6 +1,8 @@
 package com.undere418code.kanban_api.dto;
 
+import jakarta.validation.constraints.*;
+
 public record CreateBoardDTO(
-        String name,
-        String description
+        @NotBlank @Size(min = 3, max = 50) String name,
+        @NotBlank @Size(min = 3, max = 200) String description
 ) {}
