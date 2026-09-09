@@ -1,7 +1,9 @@
 package com.undere418code.kanban_api.service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Service;
 
 import com.undere418code.kanban_api.dto.ListDTO;
@@ -13,6 +15,8 @@ import com.undere418code.kanban_api.exception.NotFoundException;
 import com.undere418code.kanban_api.mapper.ListMapper;
 import com.undere418code.kanban_api.repository.BoardRepository;
 import com.undere418code.kanban_api.repository.ListRepository;
+import com.undere418code.kanban_api.util.FieldCheckUtils;
+import com.undere418code.kanban_api.util.JsonNullablePatch;
 
 @Service
 public class ListService {
@@ -36,10 +40,13 @@ public class ListService {
         BoardEntity board = boardRepository.findById(dto.boardId())
                 .orElseThrow(() -> new NotFoundException("Board " + dto.boardId() + " not found for creating"));
 
-        ListEntity list = new ListEntity();
-        list.setName(dto.name());
+        ListEntity list = listMapper.toEntity(dto);
         list.setBoard(board);
         list.setPosition(nextPosition(dto.boardId()));
+        // ListEntity list = new ListEntity();
+        // list.setName(dto.name());
+        // list.setBoard(board);
+        // list.setPosition(nextPosition(dto.boardId()));
 
         return listMapper.toDTO(listRepository.save(list));
     }
@@ -60,13 +67,22 @@ public class ListService {
     public ListDTO updateList(Long id, UpdateListDTO dto) {
         ListEntity list = listRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("List " + id + " not found for update"));
-
-        if (dto.name() != null)
-            list.setName(dto.name());
+        
+        
+        if(JsonNullablePatch.applyPatch(dto.name(), list::setName)){
+            FieldCheckUtils.requireNotBlankaAndNotNull(list.getName(), "List Name");
+        }
+        // if (dto.name() != null)
+        //     list.setName(dto.name());
                // Repositionnement
-        if (dto.position() != null) {
+        if(dto.position().isPresent()){
             int oldPos = list.getPosition();
-            int newPos = dto.position();
+            int newPos = dto.position().get();
+            FieldCheckUtils.requireNotNullandPositive(dto.position().get(), "List Position");
+
+        // if (dto.position() != null) {
+        //     int oldPos = list.getPosition();
+        //     int newPos = dto.position();
 
             if (oldPos != newPos) {
                 Long boardId = list.getBoard().getId();
@@ -114,7 +130,7 @@ public class ListService {
         lists.stream()
                 .filter(c -> c.getPosition() > deletedPos)
                 .forEach(c -> c.setPosition(c.getPosition() - 1));
-        
+
         listRepository.saveAll(lists);
     }
 }

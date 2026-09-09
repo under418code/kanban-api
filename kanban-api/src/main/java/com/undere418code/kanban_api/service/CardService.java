@@ -2,6 +2,7 @@ package com.undere418code.kanban_api.service;
 
 import java.util.List;
 
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Service;
 
 import com.undere418code.kanban_api.dto.CardDTO;
@@ -13,6 +14,8 @@ import com.undere418code.kanban_api.exception.NotFoundException;
 import com.undere418code.kanban_api.mapper.CardMapper;
 import com.undere418code.kanban_api.repository.CardRepository;
 import com.undere418code.kanban_api.repository.ListRepository;
+import com.undere418code.kanban_api.util.FieldCheckUtils;
+import com.undere418code.kanban_api.util.JsonNullablePatch;
 
 @Service
 public class CardService {
@@ -36,13 +39,17 @@ public class CardService {
         ListEntity list = listRepository.findById(dto.listId())
                 .orElseThrow(() -> new NotFoundException("List " + dto.listId() + " not found"));
 
-        CardEntity card = new CardEntity();
-        card.setTitle(dto.title());
-        card.setDescription(dto.description());
+        CardEntity card = cardMapper.toEntity(dto);
         card.setList(list);
-        card.setStatus(dto.status());
-        card.setDueDate(dto.dueDate());
         card.setPosition(nextPosition(dto.listId()));
+
+        // CardEntity card = new CardEntity();
+        // card.setTitle(dto.title());
+        // card.setDescription(dto.description());
+        // card.setList(list);
+        // card.setStatus(dto.status());
+        // card.setDueDate(dto.dueDate());
+        // card.setPosition(nextPosition(dto.listId()));
 
         return cardMapper.toDTO(cardRepository.save(card));
     }
@@ -64,18 +71,28 @@ public class CardService {
         CardEntity card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card " + id + " not found"));
 
-        if (dto.title() != null)
-            card.setTitle(dto.title());
-        if (dto.description() != null)
-            card.setDescription(dto.description());
-        if (dto.status() != null)
-            card.setStatus(dto.status());
-        if (dto.dueDate() != null)
-            card.setDueDate(dto.dueDate());
+        boolean applyPatch = JsonNullablePatch.applyPatch(dto.title(), card::setTitle);
+        if(applyPatch){FieldCheckUtils.requireNotBlankaAndNotNull(card.getTitle(), "Card Name");}
+        // if (dto.title() != null)
+        //     card.setTitle(dto.title());
+        applyPatch = JsonNullablePatch.applyPatch(dto.description(), card::setDescription);
+        if(applyPatch){FieldCheckUtils.requireNotBlankaAndNotNull(card.getDescription(), "Card Description");}
+        // if (dto.description() != null)
+        //     card.setDescription(dto.description());
+        applyPatch = JsonNullablePatch.applyPatch(dto.status(), card::setStatus);
+        if(applyPatch){FieldCheckUtils.requireNonNull(card.getStatus(), "Card Status");}
+        // if (dto.status() != null)
+        //     card.setStatus(dto.status());
+        applyPatch = JsonNullablePatch.applyPatch(dto.dueDate(), card::setDueDate);
+        if (applyPatch) {FieldCheckUtils.requireNotPast(card.getDueDate(), "Card Date");}
+        // if (dto.dueDate() != null)
+        //     card.setDueDate(dto.dueDate());
+
         // Repositionnement
-        if (dto.position() != null) {
+        if (dto.position().isPresent()) {
             int oldPos = card.getPosition();
-            int newPos = dto.position();
+            int newPos = dto.position().get();
+            FieldCheckUtils.requireNotNullandPositive(newPos, "Card Position");
 
             if (oldPos != newPos) {
                 Long listId = card.getList().getId();
