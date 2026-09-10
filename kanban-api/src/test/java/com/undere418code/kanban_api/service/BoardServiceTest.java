@@ -1,6 +1,7 @@
 package com.undere418code.kanban_api.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import com.undere418code.kanban_api.dto.BoardDTO;
 import com.undere418code.kanban_api.dto.CreateBoardDTO;
@@ -62,12 +64,17 @@ class BoardServiceTest {
         BoardEntity board = new BoardEntity();
         board.setId(1L);
         board.setName("Old");
+        board.setDescription("Test"); // ← obligatoire
 
-        UpdateBoardDTO dto = new UpdateBoardDTO("New", null);
+        //UpdateBoardDTO dto = new UpdateBoardDTO(JsonNullable.of("New"), JsonNullable.of(null));
+        
+        UpdateBoardDTO dto = new UpdateBoardDTO(JsonNullable.of("New"), JsonNullable.undefined());
+        // UpdateBoardDTO dto = new UpdateBoardDTO(JsonNullable.undefined(), JsonNullable.of("New"));
+
 
         when(boardRepository.findById(1L)).thenReturn(Optional.of(board));
         when(boardRepository.save(board)).thenReturn(board);
-        when(boardMapper.toDTO(board)).thenReturn(new BoardDTO(1L, "New", null));
+        when(boardMapper.toDTO(board)).thenReturn(new BoardDTO(1L, "New", "Test"));
 
         BoardDTO result = boardService.updateBoard(1L, dto);
 

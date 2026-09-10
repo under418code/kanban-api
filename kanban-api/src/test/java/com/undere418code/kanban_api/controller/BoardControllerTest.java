@@ -17,6 +17,7 @@ import com.undere418code.kanban_api.service.BoardService;
 import tools.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -116,8 +117,8 @@ class BoardControllerTest {
     @Test
     void updateBoard_returnsUpdatedBoardDTO() throws Exception {
 
-        UpdateBoardDTO input = new UpdateBoardDTO("Updated", "Updated Desc");
-        BoardDTO output = new BoardDTO(1L, "Updated", "Updated Desc");
+        UpdateBoardDTO input = new UpdateBoardDTO(JsonNullable.undefined(), JsonNullable.of("Updated Desc"));
+        BoardDTO output = new BoardDTO(1L, "Task", "Updated Desc");
 
         when(boardService.updateBoard(eq(1L), any(UpdateBoardDTO.class))).thenReturn(output);
 

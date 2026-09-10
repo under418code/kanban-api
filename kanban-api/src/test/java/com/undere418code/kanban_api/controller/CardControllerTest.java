@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -145,7 +146,7 @@ class CardControllerTest {
     // ---------------------------------------------------------
     @Test
     void updateCard_returnUpdatedCardDTO() throws Exception{
-        UpdateCardDTO input = new UpdateCardDTO(null, null, "essential task update", CardStatus.ARCHIVED, null);
+        UpdateCardDTO input = new UpdateCardDTO(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("essential task update"), JsonNullable.of(CardStatus.ARCHIVED), JsonNullable.undefined());
         CardDTO output = new CardDTO(6L, 5, "execute task X","essential task update", 32L, CardStatus.ARCHIVED, LocalDate.of(2024, 9, 4));
 
         when(cardService.updateCard(eq(6L), any(UpdateCardDTO.class))).thenReturn(output);
