@@ -59,7 +59,6 @@ class CardControllerTest {
 
         mockMvc.perform(get("/cards/12")) // recupere a l'id card 12 
                 .andExpect(status().isOk())
-                // .andExpect(jsonPath("$.id").value(12)) ect mais le plus simple est l'utilisation de ObjetMapper comme ca on est sur 
                 .andExpect(content().json(expectedJson));
         
         verify(cardService).getCard(12L);
@@ -130,13 +129,6 @@ class CardControllerTest {
         .content(objetMapper.writeValueAsString(input)))
             .andExpect(status().isOk())
             .andExpect(content().json(objetMapper.writeValueAsString(output)));
-        
-        // verify(cardService).createCard(argThat(dto ->
-        //     dto.title().equals("execute task X") &&
-        //     dto.description().equals("essential task") &&
-        //     dto.listId().equals( 3L ) &&
-        //     dto.status().equals(CardStatus.ACTIVE)
-        // ));
         verify(cardService).createCard(eq(input));
         
     }

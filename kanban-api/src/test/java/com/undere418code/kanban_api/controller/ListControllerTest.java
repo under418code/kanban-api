@@ -130,8 +130,6 @@ class ListControllerTest {
                 // alors qu’avec @Autowired on récupère l’ObjectMapper déjà configuré pour bien désérialiser les objets.
                 // ObjectMapper mapper = new ObjectMapper(); ---> erreur 500 car new ObjectMapper() ignore la config Spring ; @Autowired fournit l’ObjectMapper correctement configuré.
                 
-                // UpdateListDTO input = new UpdateListDTO("Update List", null);
-                // UpdateListDTO input = new UpdateListDTO(JsonNullable.of("Update List"),JsonNullable.of(null));
                 UpdateListDTO input = new UpdateListDTO(JsonNullable.of("Update List"), JsonNullable.undefined());
                 ListDTO output = new ListDTO(3L, 7, "Update List", 6L);
 
@@ -141,15 +139,8 @@ class ListControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(input)))
                                 .andExpect(status().isOk())
-                                // .andExpect(jsonPath("$.id").value(3))
-                                // .andExpect(jsonPath("$.position").value(7))
-                                // .andExpect(jsonPath("$.name").value("Update List"))
-                                // .andExpect(jsonPath("$.boardId").value(6))
                                 .andExpect(content().json(objectMapper.writeValueAsString(output)));
 
-                // verify(listService).updateList(eq(3L), argThat(dto ->
-                // dto.name().equals("Update List")
-                // ));
                 verify(listService).updateList(eq(3L), eq(input));
         }
 

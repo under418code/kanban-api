@@ -27,13 +27,6 @@ public class BoardService {
     }
  /** Crée un nouveau board à partir du DTO d'entrée. */
     public BoardDTO createBoard(CreateBoardDTO dto) {
-        // BoardEntity board = new BoardEntity();
-        // board.setName(dto.name());
-        // board.setDescription(dto.description());
-        // BoardEntity saved = boardRepository.save(board);
-
-        // BoardEntity board = boardMapper.toEntity(dto);
-        // BoardEntity saved = boardRepository.save(board);
 
         BoardEntity saved = boardRepository.save(boardMapper.toEntity(dto));
         return boardMapper.toDTO(saved);
@@ -60,24 +53,12 @@ public BoardDTO updateBoard(Long id, UpdateBoardDTO dto) {
     BoardEntity board = boardRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Board " + id + " not found"));
 
-    // // PATCH = appliquer uniquement les champs présents
-    // if (dto.name() != null) board.setName(dto.name());
-    // if (dto.description() != null) board.setDescription(dto.description());
-
-    //JsonNullablePatch.applyPatch(dto.name(), board::setName);
-    // Function<String, Integer> strToInt = String::length;
     dto.name().ifPresent(board::setName);
     // Human readable
     JsonNullablePatch.applyPatch(dto.description(), board::setDescription);
     // Validation métier sur l'entité finale, après application du patch
     FieldCheckUtils.requireNotBlankaAndNotNull(board.getName(),"Board Name");
     FieldCheckUtils.requireNotBlankaAndNotNull(board.getDescription(),"Board Descrition");
-    // if (board.getName() == null || board.getName().isBlank()) {
-    //     throw new ValidationException("Name cannot be blank");
-    // }
-    // if (board.getDescription() == null || board.getDescription().isBlank()) {
-    //     throw new ValidationException("Description cannot be blank");
-    // }
 
     return boardMapper.toDTO(boardRepository.save(board));
     }

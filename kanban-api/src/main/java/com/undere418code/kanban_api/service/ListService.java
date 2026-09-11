@@ -43,10 +43,6 @@ public class ListService {
         ListEntity list = listMapper.toEntity(dto);
         list.setBoard(board);
         list.setPosition(nextPosition(dto.boardId()));
-        // ListEntity list = new ListEntity();
-        // list.setName(dto.name());
-        // list.setBoard(board);
-        // list.setPosition(nextPosition(dto.boardId()));
 
         return listMapper.toDTO(listRepository.save(list));
     }
@@ -72,17 +68,12 @@ public class ListService {
         if(JsonNullablePatch.applyPatch(dto.name(), list::setName)){
             FieldCheckUtils.requireNotBlankaAndNotNull(list.getName(), "List Name");
         }
-        // if (dto.name() != null)
-        //     list.setName(dto.name());
-               // Repositionnement
+
+        // Repositionnement
         if(dto.position().isPresent()){
             int oldPos = list.getPosition();
             int newPos = dto.position().get();
             FieldCheckUtils.requireNotNullandPositive(dto.position().get(), "List Position");
-
-        // if (dto.position() != null) {
-        //     int oldPos = list.getPosition();
-        //     int newPos = dto.position();
 
             if (oldPos != newPos) {
                 Long boardId = list.getBoard().getId();

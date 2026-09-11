@@ -43,14 +43,6 @@ public class CardService {
         card.setList(list);
         card.setPosition(nextPosition(dto.listId()));
 
-        // CardEntity card = new CardEntity();
-        // card.setTitle(dto.title());
-        // card.setDescription(dto.description());
-        // card.setList(list);
-        // card.setStatus(dto.status());
-        // card.setDueDate(dto.dueDate());
-        // card.setPosition(nextPosition(dto.listId()));
-
         return cardMapper.toDTO(cardRepository.save(card));
     }
 
@@ -73,20 +65,15 @@ public class CardService {
 
         boolean applyPatch = JsonNullablePatch.applyPatch(dto.title(), card::setTitle);
         if(applyPatch){FieldCheckUtils.requireNotBlankaAndNotNull(card.getTitle(), "Card Name");}
-        // if (dto.title() != null)
-        //     card.setTitle(dto.title());
+
         applyPatch = JsonNullablePatch.applyPatch(dto.description(), card::setDescription);
         if(applyPatch){FieldCheckUtils.requireNotBlankaAndNotNull(card.getDescription(), "Card Description");}
-        // if (dto.description() != null)
-        //     card.setDescription(dto.description());
+
         applyPatch = JsonNullablePatch.applyPatch(dto.status(), card::setStatus);
         if(applyPatch){FieldCheckUtils.requireNonNull(card.getStatus(), "Card Status");}
-        // if (dto.status() != null)
-        //     card.setStatus(dto.status());
+
         applyPatch = JsonNullablePatch.applyPatch(dto.dueDate(), card::setDueDate);
         if (applyPatch) {FieldCheckUtils.requireNotPast(card.getDueDate(), "Card Date");}
-        // if (dto.dueDate() != null)
-        //     card.setDueDate(dto.dueDate());
 
         // Repositionnement
         if (dto.position().isPresent()) {
