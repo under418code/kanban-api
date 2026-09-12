@@ -2,6 +2,7 @@ package com.undere418code.kanban_api.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +17,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/boards")
 public class BoardController {
 
+    @Qualifier("v1")
     private final BoardService boardService;
 
-    public BoardController(BoardService boardService) {
+    public BoardController(@Qualifier("v1") BoardService boardService) {
         this.boardService = boardService;
     }
 
