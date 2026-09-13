@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -58,7 +59,6 @@ class CardControllerTest {
 
         mockMvc.perform(get("/cards/12")) // recupere a l'id card 12 
                 .andExpect(status().isOk())
-                // .andExpect(jsonPath("$.id").value(12)) ect mais le plus simple est l'utilisation de ObjetMapper comme ca on est sur 
                 .andExpect(content().json(expectedJson));
         
         verify(cardService).getCard(12L);
@@ -129,13 +129,6 @@ class CardControllerTest {
         .content(objetMapper.writeValueAsString(input)))
             .andExpect(status().isOk())
             .andExpect(content().json(objetMapper.writeValueAsString(output)));
-        
-        // verify(cardService).createCard(argThat(dto ->
-        //     dto.title().equals("execute task X") &&
-        //     dto.description().equals("essential task") &&
-        //     dto.listId().equals( 3L ) &&
-        //     dto.status().equals(CardStatus.ACTIVE)
-        // ));
         verify(cardService).createCard(eq(input));
         
     }
@@ -145,7 +138,7 @@ class CardControllerTest {
     // ---------------------------------------------------------
     @Test
     void updateCard_returnUpdatedCardDTO() throws Exception{
-        UpdateCardDTO input = new UpdateCardDTO(null, null, "essential task update", CardStatus.ARCHIVED, null);
+        UpdateCardDTO input = new UpdateCardDTO(JsonNullable.undefined(), JsonNullable.undefined(), JsonNullable.of("essential task update"), JsonNullable.of(CardStatus.ARCHIVED), JsonNullable.undefined());
         CardDTO output = new CardDTO(6L, 5, "execute task X","essential task update", 32L, CardStatus.ARCHIVED, LocalDate.of(2024, 9, 4));
 
         when(cardService.updateCard(eq(6L), any(UpdateCardDTO.class))).thenReturn(output);

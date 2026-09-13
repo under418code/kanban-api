@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import com.undere418code.kanban_api.dto.CardDTO;
 import com.undere418code.kanban_api.dto.CreateCardDTO;
@@ -91,11 +92,11 @@ class CardServiceTest {
         other.setList(list);
 
         UpdateCardDTO dto = new UpdateCardDTO(
-                null, // title
-                1, // position → repositionnement OK
-                null, // description
-                null, // status
-                null // dueDate
+                JsonNullable.undefined(), // title
+                JsonNullable.of(1), // position → repositionnement OK
+                JsonNullable.undefined(), // description
+                JsonNullable.undefined(), // status
+                JsonNullable.undefined() // dueDate
         );
 
         when(cardRepository.findById(1L)).thenReturn(Optional.of(card));

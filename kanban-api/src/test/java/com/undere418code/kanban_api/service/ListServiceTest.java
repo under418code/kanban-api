@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import com.undere418code.kanban_api.dto.ListDTO;
 import com.undere418code.kanban_api.dto.CreateListDTO;
@@ -82,7 +83,7 @@ class ListServiceTest {
         list.setBoard(board);
         other.setBoard(board);
 
-        UpdateListDTO dto = new UpdateListDTO("New", 1);
+        UpdateListDTO dto = new UpdateListDTO(JsonNullable.of("New"),JsonNullable.of(1));
 
         when(listRepository.findById(1L)).thenReturn(Optional.of(list));
         when(listRepository.findByBoardId(99L)).thenReturn(new java.util.ArrayList<>(List.of(list, other)));
