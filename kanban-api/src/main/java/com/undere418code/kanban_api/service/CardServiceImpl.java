@@ -44,7 +44,8 @@ public class CardServiceImpl implements CardService {
         card.setList(list);
         card.setPosition(nextPosition(dto.listId()));
 
-        return cardMapper.toDTO(cardRepository.save(card));
+        CardEntity saved = cardRepository.save(card);
+        return cardMapper.toDTO(saved);
     }
 
     @Override 

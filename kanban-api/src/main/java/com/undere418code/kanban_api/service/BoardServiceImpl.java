@@ -30,8 +30,8 @@ public class BoardServiceImpl implements BoardService {
     /** Crée un nouveau board à partir du DTO d'entrée. */
     @Override
     public BoardDTO createBoard(CreateBoardDTO dto) {
-
-        BoardEntity saved = boardRepository.save(boardMapper.toEntity(dto));
+        BoardEntity board = boardMapper.toEntity(dto);
+        BoardEntity saved = boardRepository.save(board);
         return boardMapper.toDTO(saved);
     }
 

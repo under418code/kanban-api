@@ -45,7 +45,8 @@ public class ListServiceImpl implements ListService{
         list.setBoard(board);
         list.setPosition(nextPosition(dto.boardId()));
 
-        return listMapper.toDTO(listRepository.save(list));
+        ListEntity saved = listRepository.save(list);
+        return listMapper.toDTO(saved);
     }
 
     @Override 
