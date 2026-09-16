@@ -37,7 +37,7 @@ class ListServiceTest {
     private ListMapper listMapper;
 
     @InjectMocks
-    private ListService listService;
+    private ListServiceImpl listService;
 
     @Test
     void shouldCreateList() {
@@ -48,6 +48,7 @@ class ListServiceTest {
 
         ListEntity saved = new ListEntity();
         saved.setId(10L);
+        when(listMapper.toEntity(any())).thenReturn(new ListEntity());
 
         when(boardRepository.findById(1L)).thenReturn(Optional.of(board));
         when(listRepository.countByBoardId(1L)).thenReturn(0);
@@ -83,7 +84,7 @@ class ListServiceTest {
         list.setBoard(board);
         other.setBoard(board);
 
-        UpdateListDTO dto = new UpdateListDTO(JsonNullable.of("New"),JsonNullable.of(1));
+        UpdateListDTO dto = new UpdateListDTO(JsonNullable.of("New"), JsonNullable.of(1));
 
         when(listRepository.findById(1L)).thenReturn(Optional.of(list));
         when(listRepository.findByBoardId(99L)).thenReturn(new java.util.ArrayList<>(List.of(list, other)));
