@@ -39,7 +39,7 @@ class CardServiceTest {
     private CardMapper cardMapper;
 
     @InjectMocks
-    private CardService cardService;
+    private CardServiceImpl cardService;
 
     @Test
     void shouldCreateCard() {
@@ -55,6 +55,7 @@ class CardServiceTest {
 
         CardEntity saved = new CardEntity();
         saved.setId(100L);
+        when(cardMapper.toEntity(any())).thenReturn(new CardEntity());
 
         when(listRepository.findById(1L)).thenReturn(Optional.of(list));
         when(cardRepository.countByListId(1L)).thenReturn(0);

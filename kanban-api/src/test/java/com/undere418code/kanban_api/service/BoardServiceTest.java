@@ -31,7 +31,7 @@ class BoardServiceTest {
     private BoardMapper boardMapper;
 
     @InjectMocks
-    private BoardService boardService;
+    private BoardServiceImpl boardService;
 
     @Test
     void shouldCreateBoard() {
@@ -48,6 +48,8 @@ class BoardServiceTest {
         BoardDTO result = boardService.createBoard(dto);
 
         assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.name()).isEqualTo("Board A");
+        assertThat(result.description()).isEqualTo("Desc");
         verify(boardRepository).save(any());
     }
 
