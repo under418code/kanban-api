@@ -22,7 +22,7 @@ import com.undere418code.kanban_api.dto.CardDTO;
 import com.undere418code.kanban_api.dto.CreateCardDTO;
 import com.undere418code.kanban_api.dto.UpdateCardDTO;
 import com.undere418code.kanban_api.enums.CardStatus;
-import com.undere418code.kanban_api.service.CardService;
+import com.undere418code.kanban_api.service.CardServiceImpl;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -36,7 +36,7 @@ class CardControllerTest {
     private ObjectMapper objetMapper;
 
     @MockitoBean
-    private CardService cardService;
+    private CardServiceImpl cardService;
 
     // ---------------------------------------------------------
     // GET /cards/{id}

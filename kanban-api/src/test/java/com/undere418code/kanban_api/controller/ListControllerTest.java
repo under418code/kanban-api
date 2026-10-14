@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.undere418code.kanban_api.dto.CreateListDTO;
 import com.undere418code.kanban_api.dto.ListDTO;
 import com.undere418code.kanban_api.dto.UpdateListDTO;
-import com.undere418code.kanban_api.service.ListService;
+import com.undere418code.kanban_api.service.ListServiceImpl;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -39,7 +39,7 @@ class ListControllerTest {
 
         // remplace le service par un mock(fake)
         @MockitoBean
-        private ListService listService;
+        private ListServiceImpl listService;
 
         // ---------------------------------------------------------
         // GET /lists/{id}
