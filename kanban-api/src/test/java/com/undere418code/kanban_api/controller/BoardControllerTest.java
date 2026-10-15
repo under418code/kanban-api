@@ -12,7 +12,7 @@ import java.util.List;
 import com.undere418code.kanban_api.dto.BoardDTO;
 import com.undere418code.kanban_api.dto.CreateBoardDTO;
 import com.undere418code.kanban_api.dto.UpdateBoardDTO;
-import com.undere418code.kanban_api.service.BoardService;
+import com.undere418code.kanban_api.service.BoardServiceImpl;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -33,8 +33,8 @@ class BoardControllerTest {
     @Autowired 
     private ObjectMapper objectMapper;
 
-    @MockitoBean
-    private BoardService boardService;
+    @MockitoBean(name = "v1")
+    private BoardServiceImpl boardService;
 
     // ---------------------------------------------------------
     // GET /boards/{id}
