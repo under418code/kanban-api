@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.undere418code.kanban_api.dto.ListDTO;
 import com.undere418code.kanban_api.dto.CreateListDTO;
@@ -19,6 +20,7 @@ import com.undere418code.kanban_api.util.FieldCheckUtils;
 import com.undere418code.kanban_api.util.JsonNullablePatch;
 
 @Service
+@Transactional(readOnly = true)
 public class ListServiceImpl implements ListService{
 
     private final ListRepository listRepository;
@@ -36,6 +38,7 @@ public class ListServiceImpl implements ListService{
     }
 
     @Override 
+    @Transactional 
     public ListDTO createList(CreateListDTO dto) {
 
         BoardEntity board = boardRepository.findById(dto.boardId())
@@ -65,6 +68,7 @@ public class ListServiceImpl implements ListService{
     }
 
     @Override 
+    @Transactional 
     public ListDTO updateList(Long id, UpdateListDTO dto) {
         ListEntity list = listRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("List " + id + " not found for update"));
@@ -110,6 +114,7 @@ public class ListServiceImpl implements ListService{
     }
 
     @Override 
+    @Transactional 
     public void deleteList(Long id) {
         ListEntity list = listRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("List " + id + " not found for delete"));
@@ -128,6 +133,6 @@ public class ListServiceImpl implements ListService{
                 .filter(c -> c.getPosition() > deletedPos)
                 .forEach(c -> c.setPosition(c.getPosition() - 1));
 
-        listRepository.saveAll(lists);
+        // listRepository.saveAll(lists); --> Transactionnal
     }
 }

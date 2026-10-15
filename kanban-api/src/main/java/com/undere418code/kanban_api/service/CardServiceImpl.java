@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.undere418code.kanban_api.dto.CardDTO;
 import com.undere418code.kanban_api.dto.CreateCardDTO;
@@ -18,6 +19,7 @@ import com.undere418code.kanban_api.util.FieldCheckUtils;
 import com.undere418code.kanban_api.util.JsonNullablePatch;
 
 @Service
+@Transactional(readOnly = true)
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
@@ -35,6 +37,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override 
+    @Transactional 
     public CardDTO createCard(CreateCardDTO dto) {
 
         ListEntity list = listRepository.findById(dto.listId())
@@ -64,6 +67,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override 
+    @Transactional 
     public CardDTO updateCard(Long id, UpdateCardDTO dto) {
         CardEntity card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card " + id + " not found"));
@@ -116,6 +120,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override 
+    @Transactional 
     public void deleteCard(Long id) {
         CardEntity card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card " + id + " not found"));
@@ -134,7 +139,7 @@ public class CardServiceImpl implements CardService {
                 .filter(c -> c.getPosition() > deletedPos)
                 .forEach(c -> c.setPosition(c.getPosition() - 1));
 
-        cardRepository.saveAll(cards);
+        // cardRepository.saveAll(cards); --> @Transactional gere 
     }
 
 }

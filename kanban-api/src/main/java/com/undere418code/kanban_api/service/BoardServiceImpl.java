@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.undere418code.kanban_api.dto.BoardDTO;
 import com.undere418code.kanban_api.dto.CreateBoardDTO;
@@ -17,6 +18,7 @@ import com.undere418code.kanban_api.util.JsonNullablePatch;
 
 @Service("v1")
 @Primary // pas obligatoire ici mais permet d'identifier l'implement a mettre si il existe en existe d'autre
+@Transactional(readOnly = true)
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
@@ -29,6 +31,7 @@ public class BoardServiceImpl implements BoardService {
 
     /** Crée un nouveau board à partir du DTO d'entrée. */
     @Override
+    @Transactional 
     public BoardDTO createBoard(CreateBoardDTO dto) {
         BoardEntity board = boardMapper.toEntity(dto);
         BoardEntity saved = boardRepository.save(board);
@@ -54,6 +57,7 @@ public class BoardServiceImpl implements BoardService {
 
     /** Met à jour un board existant (PATCH). */
     @Override
+    @Transactional 
     public BoardDTO updateBoard(Long id, UpdateBoardDTO dto) {
 
     BoardEntity board = boardRepository.findById(id)
@@ -72,6 +76,7 @@ public class BoardServiceImpl implements BoardService {
 
      /** Supprime un board si il existe, sinon NotFoundException. */
     @Override 
+    @Transactional 
     public void deleteBoard(Long id) {
         if (!boardRepository.existsById(id)) {
             throw new NotFoundException("Board " + id + " not found");
