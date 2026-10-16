@@ -1,139 +1,285 @@
 # 🗂️ Kanban API - Backend Spring Boot
 
-Backend REST développé avec **Java 21.0.4**, **Spring Boot 4.1.0**, **Maven** et **PostgreSQL 18.4**.
+API REST de gestion de tableaux Kanban, développée avec **Java 21**, **Spring Boot 4.1.1**, **Maven** et **PostgreSQL 18.4**.
 
-Ce projet a pour objectif de construire progressivement une **API Kanban complète**, avec une architecture claire, maintenable et extensible.
+Le projet est construit **étape par étape**, avec une architecture en couches claire, testée et extensible. Il sert aussi pour ma chaîne.
 
-La première phase consiste à mettre en place les fondations techniques du backend avant d'implémenter progressivement les fonctionnalités métier : persistance des données, CRUD, validation, gestion des erreurs, sécurité, pagination, etc.
+## 🔗 Liens
+
+* 🎥 YouTube : [www.youtube.com/@Under418Code](https://www.youtube.com/@Under418Code)
+* 💼 LinkedIn : [linkedin.com/in/vincent-bollot](https://www.linkedin.com/in/vincent-bollot/)
+
+---
+
+## 🛣️ Roadmap
+
+- [x] Entités JPA (`Board`, `List`, `Card`)
+- [x] Repositories Spring Data
+- [x] Services + logique métier
+- [x] Controllers REST
+- [x] DTOs + validation
+- [x] MapStruct + JsonNullable
+- [x] Repositionnement (contrainte unique + double passe)
+- [x] Tests à 3 niveaux
+- [x] `@Transactional`
+- [x] `@ControllerAdvice` (gestion d'erreurs centralisée)
+- [ ] User + JWT (authentification)
+- [ ] Docker + CI/CD
+- [ ] Tests de concurrence (`@Version`)
+- [ ] Pagination
 
 ---
 
 ## 🎯 Objectifs du projet
 
-L'objectif est de construire une API backend permettant de gérer un tableau Kanban composé de :
+Gérer un tableau Kanban composé de :
 
 * **Boards** → tableaux Kanban
 * **Lists** → colonnes d'un tableau
 * **Cards** → tâches présentes dans les colonnes
 
-L'architecture est volontairement construite **étape par étape** afin de comprendre le rôle de chaque couche d'une application Spring Boot.
+```text
+Board
+ ├── List
+ │    ├── Card
+ │    └── Card
+ └── List
+      └── Card
+```
 
-### Architecture cible
+---
+
+## 🚀 Technologies utilisées
+
+| Technologie                | Rôle                                                    |
+| -------------------------- | ------------------------------------------------------- |
+| Java 21                    | Langage                                                 |
+| Spring Boot 4.1.1          | Framework                                               |
+| Maven                      | Gestion du projet et des dépendances                    |
+| PostgreSQL 18.4            | Base de données                                         |
+| Spring Web MVC             | API REST                                                |
+| Spring Data JPA            | Persistance (Hibernate)                                 |
+| Bean Validation            | Validation des entrées (`@Valid`)                       |
+| MapStruct 1.6.3            | Mapping Entity ↔ DTO                                    |
+| jackson-databind-nullable  | `JsonNullable` pour les `PATCH` partiels                |
+| Spring Boot Actuator       | Supervision                                             |
+| Spring Boot DevTools       | Rechargement automatique en développement               |
+| JUnit, Mockito, H2         | Tests                                                   |
+| Testcontainers             | Dépendances déclarées dans le `pom.xml`                 |
+
+---
+
+## 🏗️ Architecture
 
 ```text
 Client / Frontend
        │
        ▼
-   Controller
+  Controller  ──►  DTO (Request / Response)
        │
        ▼
-     DTO
+    Service      (logique métier, @Transactional)
        │
        ▼
-    Service
+  Repository     (Spring Data JPA)
        │
        ▼
-   Repository
-       │
-       ▼
-     JPA
-       │
-       ▼
- PostgreSQL
+  PostgreSQL     (board / list / card)
 ```
 
-La gestion des erreurs est transversale et centralisée grâce à `GlobalExceptionHandler`.
+La gestion des erreurs est transversale et centralisée dans `GlobalExceptionHandler` (`@RestControllerAdvice`).
 
----
-
-# 🚀 Technologies utilisées
-
-| Technologie          | Version / rôle                            |
-| -------------------- | ----------------------------------------- |
-| Java                 | 21.0.4                                    |
-| Spring Boot          | 4.1.0                                     |
-| Maven                | Gestion du projet et des dépendances      |
-| PostgreSQL           | 18.4                                      |
-| Spring Web           | Création de l'API REST                    |
-| Spring Data JPA      | Persistance des données                   |
-| Hibernate            | ORM                                       |
-| Validation           | Validation des données                    |
-| Lombok               | Réduction du code boilerplate             |
-| Spring Boot DevTools | Rechargement automatique en développement |
-| VS Code              | Environnement de développement            |
-
----
-
-# 🏁 Créer un nouveau projet Spring Boot avec VS Code
-
-## 1. Ouvrir Spring Initializr
-
-Dans VS Code :
+### Structure
 
 ```text
-Ctrl + Shift + P
-```
-
-Puis :
-
-```text
-Spring Initializr: Create a Maven Project
-```
-
----
-
-## 2. Paramètres du projet
-
-Sélectionner :
-
-* **Java 21**
-* **Spring Boot 4.1.0**
-* **Maven**
-* **Jar**
-
-### Identifiants Maven
-
-```text
-GroupId    : com.undere418code
-ArtifactId : kanban-api
+src/main/java/com/undere418code/kanban_api
+│
+├── controller   → BoardController, ListController, CardController
+├── dto          → Create*DTO, Update*DTO (JsonNullable), *DTO de réponse
+├── entity       → BoardEntity, ListEntity, CardEntity
+├── enums        → CardStatus (ACTIVE, ARCHIVED, DELETED)
+├── exception    → GlobalExceptionHandler, ErrorResponse,
+│                  NotFoundException, ValidationException, UnauthorizedException
+├── mapper       → BoardMapper, ListMapper, CardMapper (MapStruct)
+├── repository   → BoardRepository, ListRepository, CardRepository
+├── service      → interfaces + implémentations (*ServiceImpl)
+├── util         → FieldCheckUtils, JsonNullablePatch
+└── KanbanApiApplication.java
 ```
 
 ---
 
-## 3. Dépendances
+## 🌐 Endpoints REST
 
-Les dépendances principales sélectionnées dans Spring Initializr :
+### Boards — `/boards`
 
-* **Spring Web**
-* **Spring Data JPA**
-* **PostgreSQL Driver**
-* **Validation**
-* **Lombok**
-* **Spring Boot DevTools**
+| Méthode  | Route          | Description               |
+| -------- | -------------- | ------------------------- |
+| `POST`   | `/boards`      | Créer un board            |
+| `GET`    | `/boards`      | Lister tous les boards    |
+| `GET`    | `/boards/{id}` | Récupérer un board        |
+| `PATCH`  | `/boards/{id}` | Modifier un board         |
+| `DELETE` | `/boards/{id}` | Supprimer un board        |
 
-Certaines dépendances pourront être ajoutées ou retirées au fur et à mesure de l'évolution du projet.
+### Lists — `/lists`
+
+| Méthode  | Route                    | Description                    |
+| -------- | ------------------------ | ------------------------------ |
+| `POST`   | `/lists`                 | Créer une liste dans un board  |
+| `GET`    | `/lists/{id}`            | Récupérer une liste            |
+| `GET`    | `/lists/board/{boardId}` | Lister les listes d'un board   |
+| `PATCH`  | `/lists/{id}`            | Modifier / repositionner       |
+| `DELETE` | `/lists/{id}`            | Supprimer une liste            |
+
+### Cards — `/cards`
+
+| Méthode  | Route                  | Description                    |
+| -------- | ---------------------- | ------------------------------ |
+| `POST`   | `/cards`               | Créer une carte dans une liste |
+| `GET`    | `/cards/{id}`          | Récupérer une carte            |
+| `GET`    | `/cards/list/{listId}` | Lister les cartes d'une liste  |
+| `PATCH`  | `/cards/{id}`          | Modifier / repositionner       |
+| `DELETE` | `/cards/{id}`          | Supprimer une carte            |
 
 ---
 
-# ▶️ Lancer le projet
+## 🗄️ Modèle PostgreSQL
 
-## Depuis VS Code
-
-Ouvrir :
+Trois tables, identifiants `BIGSERIAL` :
 
 ```text
-KanbanApiApplication.java
+board (1) ──── (N) list (1) ──── (N) card
 ```
 
-Puis cliquer sur :
+```sql
+CREATE TABLE board (
+    id           BIGSERIAL PRIMARY KEY,
+    name         VARCHAR(100) NOT NULL,
+    description  TEXT,
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
+);
 
-```text
-Run
+CREATE TABLE list (
+    id           BIGSERIAL PRIMARY KEY,
+    board_id     BIGINT NOT NULL REFERENCES board(id) ON DELETE CASCADE,
+    name         VARCHAR(100) NOT NULL,
+    position     INT NOT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (board_id, position)
+);
+
+CREATE TABLE card (
+    id           BIGSERIAL PRIMARY KEY,
+    list_id      BIGINT NOT NULL REFERENCES list(id) ON DELETE CASCADE,
+    title        VARCHAR(200) NOT NULL,
+    description  TEXT,
+    position     INT NOT NULL,
+    status       VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    due_date     DATE,
+    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (list_id, position)
+);
+```
+
+* `ON DELETE CASCADE` : supprimer un board supprime ses listes, supprimer une liste supprime ses cartes.
+* `UNIQUE (board_id, position)` et `UNIQUE (list_id, position)` : deux éléments d'un même parent ne peuvent pas avoir la même position.
+* `status` est mappé sur l'enum Java `CardStatus` (`ACTIVE`, `ARCHIVED`, `DELETED`).
+* `ddl-auto: none` : le schéma est géré côté base, pas par Hibernate.
+
+> Un utilisateur PostgreSQL dédié (`kanban_api`) est utilisé par l'application, avec uniquement les droits `SELECT`, `INSERT`, `UPDATE`, `DELETE` et ceux sur les séquences. En production, les identifiants doivent être externalisés (variables d'environnement) et non écrits dans `application.yml`.
+
+---
+
+## 📍 Gestion des positions
+
+Chaque liste et chaque carte possède une `position` (0, 1, 2…).
+
+* **Création** : l'élément est ajouté à la fin (position = nombre d'éléments existants).
+* **Déplacement** (`PATCH` avec `position`) : les éléments du parent sont réordonnés en **deux passes**.
+  1. Positions temporaires négatives, pour éviter toute collision avec la contrainte `UNIQUE`.
+  2. `flush`, puis positions finales `0..n`.
+* **Suppression** : les positions des éléments suivants sont décalées de −1 pour ne laisser aucun trou.
+
+---
+
+## ✏️ PATCH partiel avec `JsonNullable`
+
+Les DTOs `Update*DTO` utilisent `JsonNullable` pour distinguer un champ **absent** (inchangé) d'un champ **présent**.
+Après application du patch, l'entité finale est validée (`FieldCheckUtils`) : un titre ne peut pas devenir vide, une date limite ne peut pas être dans le passé, etc.
+
+Exemple :
+
+```http
+PATCH /cards/12
+Content-Type: application/json
+
+{ "title": "Configurer PostgreSQL", "position": 0 }
 ```
 
 ---
 
-## Avec Maven
+## ⚠️ Gestion des erreurs
+
+`GlobalExceptionHandler` (`@RestControllerAdvice`) renvoie un JSON uniforme (`ErrorResponse`) :
+
+```json
+{ "message": "Board 42 not found" }
+```
+
+| Exception                          | Statut HTTP |
+| ---------------------------------- | ----------- |
+| `NotFoundException`                | 404         |
+| `ValidationException`              | 400         |
+| `MethodArgumentNotValidException`  | 400         |
+| `UnauthorizedException`            | 401 (prévue pour la future couche sécurité) |
+| `Exception` (fallback)             | 500         |
+
+---
+
+## 🧪 Tests
+
+Tests à trois niveaux :
+
+| Niveau       | Outils                          | Dossier                |
+| ------------ | ------------------------------- | ---------------------- |
+| Controllers  | `@WebMvcTest` + MockMvc         | `src/test/.../controller` |
+| Services     | JUnit 5 + Mockito               | `src/test/.../service`    |
+| Repositories | `@DataJpaTest` (H2 en mémoire)  | `src/test/.../repository` |
+
+Lancer les tests :
+
+```bash
+./mvnw test
+```
+
+---
+
+## ▶️ Lancer le projet
+
+### Prérequis
+
+* Java 21
+* PostgreSQL avec une base `kanban_db` et un utilisateur `kanban_api`
+* Le schéma SQL ci-dessus appliqué à la base
+
+### Configuration
+
+`src/main/resources/application.yml` :
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kanban_db
+    username: kanban_api
+    password: <votre_mot_de_passe>
+server:
+  port: 8080
+```
+
+### Démarrage
 
 Linux / macOS :
 
@@ -147,690 +293,16 @@ Windows :
 mvnw.cmd spring-boot:run
 ```
 
----
-
-# 🎯 Modèle fonctionnel
-
-L'application repose sur trois concepts principaux :
-
-* **Board** → tableau Kanban
-* **List** → colonne d'un tableau
-* **Card** → tâche présente dans une colonne
-
-La hiérarchie fonctionnelle est la suivante :
-
-```text
-Board
- ├── List
- │    ├── Card
- │    ├── Card
- │    └── Card
- │
- ├── List
- │    ├── Card
- │    └── Card
- │
- └── List
-      └── Card
-```
+L'API est alors disponible sur `http://localhost:8080`.
 
 ---
 
-# 🗄️ Modèle PostgreSQL
+## 🧠 Objectif pédagogique
 
-Le schéma de la base de données est actuellement composé de trois tables :
-
-```text
-board
-list
-card
-```
-
-Les tables utilisent PostgreSQL avec des identifiants `BIGSERIAL`.
+Comprendre concrètement le chemin d'une donnée, de PostgreSQL jusqu'au client HTTP, couche par couche :
 
 ```text
-┌──────────────────────┐
-│        board         │
-├──────────────────────┤
-│ id          BIGSERIAL│
-│ name        VARCHAR  │
-│ description TEXT     │
-│ created_at  TIMESTAMP│
-│ updated_at  TIMESTAMP│
-└──────────┬───────────┘
-           │
-           │ 1
-           │
-           │ N
-┌──────────▼───────────┐
-│         list         │
-├──────────────────────┤
-│ id          BIGSERIAL│
-│ board_id    BIGINT   │
-│ name        VARCHAR  │
-│ position    INT      │
-│ created_at  TIMESTAMP│
-│ updated_at  TIMESTAMP│
-└──────────┬───────────┘
-           │
-           │ 1
-           │
-           │ N
-┌──────────▼───────────┐
-│         card         │
-├──────────────────────┤
-│ id          BIGSERIAL│
-│ board_id    BIGINT   │
-│ list_id     BIGINT   │
-│ title       VARCHAR  │
-│ description TEXT     │
-│ position    INT      │
-│ status      VARCHAR  │
-│ due_date    DATE     │
-│ created_at  TIMESTAMP│
-│ updated_at  TIMESTAMP│
-└──────────────────────┘
+Entity → Repository → Service → Controller → API REST
 ```
 
----
-
-# 🧱 Table `board`
-
-La table `board` représente le tableau Kanban principal.
-
-```sql
-CREATE TABLE board (
-    id           BIGSERIAL PRIMARY KEY,
-    name         VARCHAR(100) NOT NULL,
-    description  TEXT,
-    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
-);
-```
-
-### Champs
-
-| Champ         | Type         | Description             |
-| ------------- | ------------ | ----------------------- |
-| `id`          | BIGSERIAL    | Identifiant unique      |
-| `name`        | VARCHAR(100) | Nom du tableau          |
-| `description` | TEXT         | Description optionnelle |
-| `created_at`  | TIMESTAMP    | Date de création        |
-| `updated_at`  | TIMESTAMP    | Date de modification    |
-
-Le champ `id` est la **clé primaire** du board.
-
----
-
-# 📑 Table `list`
-
-La table `list` représente une colonne appartenant à un board.
-
-```sql
-CREATE TABLE list (
-    id           BIGSERIAL PRIMARY KEY,
-    board_id     BIGINT NOT NULL,
-    name         VARCHAR(100) NOT NULL,
-    position     INT NOT NULL,
-    created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
-);
-```
-
-Chaque liste possède une référence vers son board :
-
-```text
-list.board_id → board.id
-```
-
-La relation est donc :
-
-```text
-Board 1 ────────── N List
-```
-
-### Contrainte de clé étrangère
-
-```sql
-FOREIGN KEY (board_id)
-REFERENCES board(id)
-ON DELETE CASCADE
-```
-
-Cela signifie que lorsqu'un board est supprimé, ses listes sont également supprimées.
-
-### Position
-
-Chaque liste possède une position dans son board :
-
-```text
-(board_id, position)
-```
-
-Cette combinaison est unique grâce à :
-
-```sql
-UNIQUE (board_id, position)
-```
-
-Deux listes d'un même board ne peuvent donc pas avoir la même position.
-
-Exemple :
-
-```text
-Board #1
-
-position 0 → TODO
-position 1 → IN PROGRESS
-position 2 → DONE
-```
-
----
-
-# 🃏 Table `card`
-
-La table `card` représente une tâche Kanban.
-
-```sql
-CREATE TABLE card (
-    id             BIGSERIAL PRIMARY KEY,
-    board_id       BIGINT NOT NULL,
-    list_id        BIGINT NOT NULL,
-    title          VARCHAR(200) NOT NULL,
-    description    TEXT,
-    position       INT NOT NULL,
-    status         VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
-    due_date       DATE,
-    created_at     TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at     TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (board_id) REFERENCES board(id) ON DELETE CASCADE,
-    FOREIGN KEY (list_id)  REFERENCES list(id)  ON DELETE CASCADE,
-    UNIQUE (list_id, position)
-);
-```
-
-### Champs principaux
-
-| Champ         | Type         | Description                        |
-| ------------- | ------------ | ---------------------------------- |
-| `id`          | BIGSERIAL    | Identifiant unique                 |
-| `board_id`    | BIGINT       | Board auquel appartient la carte   |
-| `list_id`     | BIGINT       | Liste contenant la carte           |
-| `title`       | VARCHAR(200) | Titre de la tâche                  |
-| `description` | TEXT         | Description optionnelle            |
-| `position`    | INT          | Position de la carte dans la liste |
-| `status`      | VARCHAR(50)  | État de la carte                   |
-| `due_date`    | DATE         | Date limite optionnelle            |
-| `created_at`  | TIMESTAMP    | Date de création                   |
-| `updated_at`  | TIMESTAMP    | Date de modification               |
-
----
-
-# 🔗 Relations de `Card`
-
-Une carte possède deux références :
-
-```text
-card.board_id → board.id
-card.list_id  → list.id
-```
-
-Cela permet de connaître directement :
-
-* le board de la carte ;
-* la liste dans laquelle elle se trouve.
-
-La relation principale est :
-
-```text
-Board
-  │
-  └── List
-       │
-       └── Card
-```
-
-La présence de `board_id` directement dans `card` permet également d'identifier rapidement le board auquel appartient la carte sans devoir reconstruire systématiquement cette information à partir de `list`.
-
-La cohérence entre les relations est toutefois une responsabilité qui devra être prise en compte dans la **couche Service**.
-
----
-
-# 📍 Position des cartes
-
-Comme pour les listes, chaque carte possède une position.
-
-La contrainte :
-
-```sql
-UNIQUE (list_id, position)
-```
-
-garantit qu'une même liste ne peut pas contenir deux cartes ayant la même position.
-
-Exemple :
-
-```text
-TODO
-
-position 0 → Créer le backend
-position 1 → Configurer PostgreSQL
-position 2 → Créer les repositories
-```
-
-Lorsqu'une carte est déplacée, sa position pourra être recalculée par la couche métier.
-
----
-
-# 🗑️ Suppression en cascade
-
-Le schéma utilise `ON DELETE CASCADE`.
-
-## Board → List
-
-```text
-DELETE Board
-      ↓
-DELETE Lists associées
-```
-
-## List → Card
-
-```text
-DELETE List
-      ↓
-DELETE Cards associées
-```
-
-## Board → Card (référence directe)
-
-`card.board_id` référence également `board(id)` avec `ON DELETE CASCADE`. En pratique, la suppression d'un board déclenche déjà la suppression de ses listes, qui déclenche elle-même la suppression des cartes — la cascade directe `board → card` est donc redondante avec `board → list → card`, mais elle reste nécessaire pour garantir l'intégrité si jamais une carte se retrouvait orpheline de liste.
-
-Cela permet de conserver automatiquement l'intégrité des données lors de la suppression d'un élément parent.
-
----
-
-# 👤 Utilisateur PostgreSQL
-
-Le script SQL crée également un utilisateur dédié à l'application :
-
-```text
-kanban_api
-```
-
-Cet utilisateur reçoit les permissions nécessaires pour travailler avec la base de données.
-
-Les droits accordés comprennent notamment :
-
-```text
-SELECT
-INSERT
-UPDATE
-DELETE
-```
-
-ainsi que les droits nécessaires sur les séquences PostgreSQL utilisées par les colonnes `BIGSERIAL`.
-
-L'objectif est d'éviter que l'application utilise directement un compte PostgreSQL administrateur.
-
-> En environnement de développement, le mot de passe utilisé dans le script peut être simplifié. En production, les identifiants doivent être externalisés et protégés.
-
----
-
-# 🧩 Correspondance SQL ↔ Java
-
-Les tables PostgreSQL seront représentées côté Java par les entités JPA :
-
-```text
-PostgreSQL                 Java
-
-board              →       BoardEntity
-list               →       ListEntity
-card               →       CardEntity
-```
-
-Structure :
-
-```text
-com.undere418code.kanban_api.entity
-
-├── BoardEntity.java
-├── ListEntity.java
-└── CardEntity.java
-```
-
-Les annotations JPA permettront ensuite de faire le mapping entre les classes Java et les tables PostgreSQL.
-
-Exemple conceptuel :
-
-```text
-@Entity
-   ↓
-@Table(name = "board")
-   ↓
-BoardEntity
-   ↓
-PostgreSQL
-board
-```
-
----
-
-# 🏗️ Architecture backend
-
-Le projet suit une architecture en couches :
-
-```text
-┌──────────────────────────────┐
-│          Controller           │
-│       API REST / HTTP        │
-└──────────────┬───────────────┘
-               ↓
-┌──────────────────────────────┐
-│            DTO               │
-│     Request / Response       │
-└──────────────┬───────────────┘
-               ↓
-┌──────────────────────────────┐
-│           Service            │
-│        Logique métier        │
-└──────────────┬───────────────┘
-               ↓
-┌──────────────────────────────┐
-│         Repository           │
-│       Spring Data JPA        │
-└──────────────┬───────────────┘
-               ↓
-┌──────────────────────────────┐
-│         PostgreSQL           │
-│   board / list / card        │
-└──────────────────────────────┘
-```
-
-La gestion des erreurs est transversale :
-
-```text
-Controller / Service / Repository
-              ↓
-    GlobalExceptionHandler
-              ↓
-        ErrorResponse
-```
-
----
-
-# ⚠️ Gestion des exceptions
-
-Le backend possède une architecture dédiée aux erreurs :
-
-```text
-exception
-│
-├── ErrorResponse.java
-├── GlobalExceptionHandler.java
-├── NotFoundException.java
-├── UnauthorizedException.java
-└── ValidationException.java
-```
-
-### `ValidationException`
-
-Utilisée lorsqu'une règle métier ou une validation n'est pas respectée.
-
-### `NotFoundException`
-
-Utilisée lorsqu'une ressource demandée n'existe pas.
-
-### `UnauthorizedException`
-
-Prévue pour gérer les accès non autorisés lors de l'ajout de la sécurité.
-
-### `ErrorResponse`
-
-Standardise le format des réponses d'erreur.
-
-### `GlobalExceptionHandler`
-
-Centralise le traitement des exceptions afin de retourner des réponses HTTP cohérentes.
-
----
-
-# 📦 Structure actuelle
-
-```text
-src/main/java/com/undere418code/kanban_api
-│
-├── controller
-│   └── → Endpoints REST
-│
-├── dto
-│   └── → Objets Request / Response
-│
-├── entity
-│   ├── BoardEntity.java
-│   ├── CardEntity.java
-│   └── ListEntity.java
-│
-├── exception
-│   ├── ErrorResponse.java
-│   ├── GlobalExceptionHandler.java
-│   ├── NotFoundException.java
-│   ├── UnauthorizedException.java
-│   └── ValidationException.java
-│
-├── repository
-│   └── → Spring Data JPA
-│
-├── service
-│   └── → Logique métier
-│
-└── KanbanApiApplication.java
-```
-
----
-## 🟪 Repositories
-
-Les repositories sont des **interfaces Spring Data JPA** qui servent d’**adaptateurs de persistance**. Ils définissent le **contrat technique** permettant d’accéder aux entités en base, tandis que Spring génère automatiquement l’implémentation.
-
-### Rôle
-
-- Accès aux données via JPA/Hibernate
-- CRUD complet fourni automatiquement
-- Méthodes dérivées basées sur le nom des fonctions
-- Pont entre la couche service et la base SQL
-- Aucun code métier : uniquement un contrat technique
-
-### Fichiers
-
-- **BoardRepository** — gestion des boards
-- **ListRepository** — gestion des listes + `findByBoardId`
-- **CardRepository** — gestion des cartes + `findByListId`
-
-### Pourquoi sont-ils « vides » ?
-
-Parce que `JpaRepository` fournit déjà de nombreuses opérations courantes :
-
-- `save()`
-- `findAll()`
-- `findById()`
-- `deleteById()`
-- Pagination
-- Tri
-
-Les repositories restent donc **minimalistes**, ce qui permet de conserver une architecture propre, lisible et facilement évolutive.
-
----
-
-## 🟪 Services
-
-Les services contiennent la **logique métier** du projet. Ils utilisent les repositories comme **adaptateurs de persistance** et exposent des méthodes claires destinées aux controllers.
-
-### Rôle
-
-- Centraliser la logique métier
-- Garder les controllers légers
-- Appliquer les règles métier : validation, cohérence, transitions, etc.
-- Préparer la future couche DTO
-- Découpler le domaine de la persistance
-
-### Fichiers
-
-- **BoardService** — création et récupération des boards
-- **ListService** — gestion des listes d’un board
-- **CardService** — gestion des cartes d’une liste
-
-### Principes appliqués
-
-- Injection par constructeur, conformément aux bonnes pratiques Spring
-- Aucune logique métier dans les repositories
-- Services simples mais conçus pour évoluer
-- Séparation claire des responsabilités
-- Structure prête à accueillir les futurs contrôleurs REST
-
-# 🛣️ Roadmap
-
-## ✅ Étape 1 - Architecture de base
-
-* [x] Création du projet Spring Boot
-* [x] Java 21
-* [x] Spring Boot
-* [x] Maven
-* [x] PostgreSQL
-* [x] Configuration `application.yml`
-* [x] Architecture des packages
-* [x] Gestion centralisée des exceptions
-* [x] Création du schéma PostgreSQL
-* [x] Création des entités :
-
-  * [x] `BoardEntity`
-  * [x] `ListEntity`
-  * [x] `CardEntity`
-
-* [x] Création des repositories :
-
-  * [x] `BoardRepository`
-  * [x] `ListRepository`
-  * [x] `CardRepository`
-
-* [x] Création des services :
-
-  * [x] `BoardService`
-  * [x] `ListService`
-  * [x] `CardService`
-
-
----
-
-## 🔜 Étape 1 - Controller
-
-Création des endpoints REST :
-
-```text
-/api/boards
-/api/lists
-/api/cards
-```
-
----
-
-## 🔜 Étape 2 - DTO & Validation
-
-Ajout des :
-
-* Request DTO
-* Response DTO
-* validations
-* règles métier
-* gestion des erreurs de validation
-
----
-
-## 🔜 Étape 3 - CRUD
-
-Implémentation complète :
-
-```text
-CREATE
-READ
-UPDATE
-DELETE
-```
-
----
-
-## 🔜 Étape 4 - Fonctionnalités avancées
-
-* Pagination
-* Tri
-* Recherche
-* Filtres
-* Gestion des positions
-* Déplacement des cartes
-* Gestion des statuts
-
----
-
-## 🔜 Étape 5 - Sécurité
-
-Ajout progressif :
-
-* Authentification
-* Autorisation
-* Gestion des utilisateurs
-* Protection des endpoints
-
----
-
-# 🧠 Objectif pédagogique
-
-Le projet est construit progressivement afin de comprendre le fonctionnement d'un backend Spring Boot moderne.
-
-Chaque couche possède une responsabilité précise :
-
-```text
-Entity
-  ↓
-Repository
-  ↓
-Service
-  ↓
-Controller
-  ↓
-API REST
-```
-
-Cette progression permet de comprendre concrètement le chemin d'une donnée depuis PostgreSQL jusqu'au client HTTP.
-
----
-
-# 📌 État actuel
-
-Le socle technique est maintenant en place :
-
-```text
-                 ┌──────────────┐
-                 │ PostgreSQL   │
-                 │              │
-                 │ board        │
-                 │ list         │
-                 │ card         │
-                 └──────▲───────┘
-                        │
-                  Prochaine étape
-                        │
-                 ┌──────┴───────┐
-                 │  Repository  │
-                 └──────▲───────┘
-                        │
-                 ┌──────┴───────┐
-                 │    Entity    │
-                 │              │
-                 │ BoardEntity   │
-                 │ ListEntity    │
-                 │ CardEntity    │
-                 └──────────────┘
-```
-
-### 🚀 Next step
-
-**Créer les `Repository` Spring Data JPA et établir la première interaction entre les `Entity` et PostgreSQL.**
+Ce projet sert à la chaîne [Under418Code](https://www.youtube.com/@Under418Code)
