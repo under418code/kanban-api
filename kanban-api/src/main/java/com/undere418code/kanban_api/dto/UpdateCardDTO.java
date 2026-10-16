@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.undere418code.kanban_api.enums.CardStatus;
 
 public record UpdateCardDTO(
